@@ -439,6 +439,10 @@ S =
 - Row 4 (“तुम”)  scores: `[0.29, 0.37, 0.45, 0.23]`  
 
 
+Here's the corrected and properly formatted Markdown version of your content that works well with platforms supporting LaTeX math (like Jupyter Notebook or some Markdown parsers that use MathJax or KaTeX):
+
+---
+
 ## 4. Softmax → Attention Weights
 
 $$
@@ -446,90 +450,95 @@ $$
 $$
 
 $$
-\text{Attention Weight}_i(W) = \text{softmax} \left(Score_i\right)
+\text{Attention Weight}_i(W) = \text{softmax}(Score_i)
 $$
 
+$$
 \begin{bmatrix}
 0.223 & 0.254 & 0.265 & 0.259 \\[4pt]
 0.222 & 0.265 & 0.271 & 0.242 \\[4pt]
 0.236 & 0.264 & 0.279 & 0.221 \\[4pt]
 0.238 & 0.258 & 0.280 & 0.224
 \end{bmatrix}
+$$
 
-- **Row “हाय”**: attends most to “are” (0.265) and “you” (0.259)  
-- **Row “तुम”**: attends most to “are” (0.280)  
+* **Row “हाय”**: attends most to “are” (0.265) and “you” (0.259)
+* **Row “तुम”**: attends most to “are” (0.280)
 
+---
 
 ## 5. Contextualized Outputs (with explicit weighted sums)
 
+$$
 W =
 \begin{bmatrix}
 0.223 & 0.254 & 0.265 & 0.259 \\[4pt]
 0.222 & 0.265 & 0.271 & 0.242 \\[4pt]
 0.236 & 0.264 & 0.279 & 0.221 \\[4pt]
 0.238 & 0.258 & 0.280 & 0.224
-\end{bmatrix},
-V (from encoder)=
+\end{bmatrix}
+\quad
+V =
 \begin{bmatrix}
 V_{\text{Hi}}  = [0.1,\,0.5,\,0.2,\,0.4] \\[3pt]
 V_{\text{how}} = [0.3,\,0.7,\,0.4,\,0.1] \\[3pt]
 V_{\text{are}} = [0.2,\,0.3,\,0.5,\,0.3] \\[3pt]
 V_{\text{you}} = [0.6,\,0.4,\,0.3,\,0.2]
 \end{bmatrix}
+$$
 
 Each output row is a weighted sum of the encoder values:
 
-1. **“हाय”**  
-   \begin{aligned}
-   O_{\text{हाय}}
-   &= 0.223\,V_{\text{Hi}}
-     + 0.254\,V_{\text{how}}
-     + 0.265\,V_{\text{are}}
-     + 0.259\,V_{\text{you}} \\[4pt]
-   &\approx [0.307,\,0.472,\,0.356,\,0.246]
-   \end{aligned}
+1. **“हाय”**
 
-2. **“कैसे”**  
-   \begin{aligned}
-   O_{\text{कैसे}}
-   &= 0.222\,V_{\text{Hi}}
-     + 0.265\,V_{\text{how}}
-     + 0.271\,V_{\text{are}}
-     + 0.242\,V_{\text{you}} \\[4pt]
-   &\approx [0.301,\,0.475,\,0.359,\,0.245]
-   \end{aligned}
+$$
+\begin{aligned}
+O_{\text{हाय}} &= 0.223\,V_{\text{Hi}} + 0.254\,V_{\text{how}} + 0.265\,V_{\text{are}} + 0.259\,V_{\text{you}} \\
+&\approx [0.307,\,0.472,\,0.356,\,0.246]
+\end{aligned}
+$$
 
-3. **“हो”**  
-   \begin{aligned}
-   O_{\text{हो}}
-   &= 0.236\,V_{\text{Hi}}
-     + 0.264\,V_{\text{how}}
-     + 0.279\,V_{\text{are}}
-     + 0.221\,V_{\text{you}} \\[4pt]
-   &\approx [0.291,\,0.475,\,0.359,\,0.249]
-   \end{aligned}
+2. **“कैसे”**
 
-4. **“तुम”**  
-   \begin{aligned}
-   O_{\text{तुम}}
-   &= 0.238\,V_{\text{Hi}}
-     + 0.258\,V_{\text{how}}
-     + 0.280\,V_{\text{are}}
-     + 0.224\,V_{\text{you}} \\[4pt]
-   &\approx [0.292,\,0.473,\,0.358,\,0.250]
-   \end{aligned}
+$$
+\begin{aligned}
+O_{\text{कैसे}} &= 0.222\,V_{\text{Hi}} + 0.265\,V_{\text{how}} + 0.271\,V_{\text{are}} + 0.242\,V_{\text{you}} \\
+&\approx [0.301,\,0.475,\,0.359,\,0.245]
+\end{aligned}
+$$
 
-O= 
+3. **“हो”**
+
+$$
+\begin{aligned}
+O_{\text{हो}} &= 0.236\,V_{\text{Hi}} + 0.264\,V_{\text{how}} + 0.279\,V_{\text{are}} + 0.221\,V_{\text{you}} \\
+&\approx [0.291,\,0.475,\,0.359,\,0.249]
+\end{aligned}
+$$
+
+4. **“तुम”**
+
+$$
+\begin{aligned}
+O_{\text{तुम}} &= 0.238\,V_{\text{Hi}} + 0.258\,V_{\text{how}} + 0.280\,V_{\text{are}} + 0.224\,V_{\text{you}} \\
+&\approx [0.292,\,0.473,\,0.358,\,0.250]
+\end{aligned}
+$$
+
+$$
+O =
 \begin{bmatrix}
 0.307 & 0.472 & 0.356 & 0.246 \\[4pt]
 0.301 & 0.475 & 0.359 & 0.245 \\[4pt]
 0.291 & 0.475 & 0.359 & 0.249 \\[4pt]
 0.292 & 0.473 & 0.358 & 0.250
 \end{bmatrix}
+$$
 
-- Row 1 (“हाय”)   
-- Row 2 (“कैसे”) `  
-- Row 3 (“हो”)     
-- Row 4 (“तुम”)  `  
+* Row 1 (“हाय”)
+* Row 2 (“कैसे”)
+* Row 3 (“हो”)
+* Row 4 (“तुम”)
+
 
 
