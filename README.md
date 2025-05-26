@@ -277,97 +277,115 @@ $$
 
 
 ## 3. Raw Attention Scores  
-Compute  
+
+We compute the raw attention scores using:
 
 $$
 S = \left( \frac{Q \cdot K^T}{\sqrt{d_k}} \right)
 $$
 
-so that each row *i* contains dot‑products of token *i*’s Q with every token’s K:
+Each row *i* contains the dot products of token *i*’s Q vector with every token’s K vector:
 
+### Raw Attention Score Matrix:
 
-S = 
-\begin{bmatrix}
-0.20 & 0.33 & 0.37 & 0.34 \\   
-0.22 & 0.40 & 0.42 & 0.31 \\   
-0.29 & 0.40 & 0.46 & 0.22 \\  
+$$
+S = \begin{bmatrix}
+0.20 & 0.33 & 0.37 & 0.34 \\\\   
+0.22 & 0.40 & 0.42 & 0.31 \\\\   
+0.29 & 0.40 & 0.46 & 0.22 \\\\  
 0.29 & 0.37 & 0.45 & 0.23     
 \end{bmatrix}
+$$
 
-1st row has scores for → हाय  
-2nd row has scores for → कैसे  
-3rd row has scores for → हो  
-4th row has scores for → तुम 
+**Row-to-token mapping:**
+
+- 1st row → **हाय**  
+- 2nd row → **कैसे**  
+- 3rd row → **हो**  
+- 4th row → **तुम**
+
 
 ## 4. Causal Mask  
-Enforce autoregressive order by masking out future positions(at हाय we dont know rest of words so we mask them with -inf as softmax of -inf is 0, same for all other words) (setting them to –∞):
+We enforce autoregressive order by masking out future positions.  
+(At **हाय**, we don’t know the rest of the words, so we mask them with $-\infty$ since $\text{softmax}(-\infty) = 0$. Same for all other tokens.)
 
+### Mask Matrix:
 
-Mask =
-\begin{bmatrix}
-0      & -\infty & -\infty & -\infty \\  % हाय (i=0)
-0      & 0       & -\infty & -\infty \\  % कैसे (i=1)
-0      & 0       & 0       & -\infty \\  % हो   (i=2)
-0      & 0       & 0       & 0        % तुम  (i=3)
+$$
+\text{Mask} = \begin{bmatrix}
+0      & -\infty & -\infty & -\infty \\\\  % हाय (i=0)  
+0      & 0       & -\infty & -\infty \\\\  % कैसे (i=1)  
+0      & 0       & 0       & -\infty \\\\  % हो   (i=2)  
+0      & 0       & 0       & 0             % तुम  (i=3)  
 \end{bmatrix}
+$$
 
+We then add this mask to the raw score matrix **S** to get the masked scores **S′**:
 
-Add to *S* to get masked scores *S′*:
+### Masked Score Matrix:
 
-
-S' = S + Mask =
+$$
+S' = S + \text{Mask} =
 \begin{bmatrix}
-0.20 & -\infty & -\infty & -\infty \\
-0.22 & 0.40    & -\infty & -\infty \\
-0.29 & 0.40    & 0.46    & -\infty \\
+0.20 & -\infty & -\infty & -\infty \\\\
+0.22 & 0.40    & -\infty & -\infty \\\\
+0.29 & 0.40    & 0.46    & -\infty \\\\
 0.29 & 0.37    & 0.45    & 0.23
 \end{bmatrix}
+$$
 
 ## 5. Softmax → Attention Weights  
-Apply softmax **row‑wise** (ignore –∞ entries, which become zero):
+We apply **softmax row-wise** to the masked score matrix (ignoring $-\infty$ entries, which effectively become 0 after softmax):
 
+### Softmax Weight Matrix:
 
+$$
 W =
 \begin{bmatrix}
-1.000 & 0     & 0     & 0     \\[6pt]
-0.455 & 0.545 & 0     & 0     \\[6pt]
-0.303 & 0.338 & 0.359 & 0     \\[6pt]
+1.000 & 0     & 0     & 0     \\\\[6pt]
+0.455 & 0.545 & 0     & 0     \\\\[6pt]
+0.303 & 0.338 & 0.359 & 0     \\\\[6pt]
 0.238 & 0.258 & 0.280 & 0.224
 \end{bmatrix}
+$$
 
+**Interpretation by token:**
 
-- **Row “हाय”**: attends only to itself → `[1, 0, 0, 0]`  
-- **Row “कैसे”**: softmax\((0.22,0.40)\approx(0.455,0.545)\)  
-- **Row “हो”**: softmax\((0.29,0.40,0.46)\approx(0.303,0.338,0.359)\)  
-- **Row “तुम”**: softmax\((0.29,0.37,0.45,0.23)\approx(0.238,0.258,0.280,0.224)\)
+- **Row “हाय”** → attends only to itself: `[1, 0, 0, 0]`  
+- **Row “कैसे”** → softmax\((0.22, 0.40) \approx (0.455, 0.545)\)  
+- **Row “हो”** → softmax\((0.29, 0.40, 0.46) \approx (0.303, 0.338, 0.359)\)  
+- **Row “तुम”** → softmax\((0.29, 0.37, 0.45, 0.23) \approx (0.238, 0.258, 0.280, 0.224)\)
 
 
 
 ## 6. Final Output  
-Compute the contextualized vectors by multipling weights by Value vector:
+We compute the **contextualized output vectors** by multiplying the attention weights **W** with the **Value matrix V**:
 
+### Output Matrix:
 
-O = W \times V
-=
+$$
+O = W \times V =
 \begin{bmatrix}
-1\cdot V_{\text{हाय}} \\[4pt]
-0.455\,V_{\text{हाय}} + 0.545\,V_{\text{कैसे}} \\[4pt]
-0.303\,V_{\text{हाय}} + 0.338\,V_{\text{कैसे}} + 0.359\,V_{\text{हो}} \\[4pt]
-0.238\,V_{\text{हाय}} + 0.258\,V_{\text{कैसे}} + 0.280\,V_{\text{हो}} + 0.224\,V_{\text{तुम}}
+1 \cdot V_{\text{हाय}} \\\\[4pt]
+0.455 \cdot V_{\text{हाय}} + 0.545 \cdot V_{\text{कैसे}} \\\\[4pt]
+0.303 \cdot V_{\text{हाय}} + 0.338 \cdot V_{\text{कैसे}} + 0.359 \cdot V_{\text{हो}} \\\\[4pt]
+0.238 \cdot V_{\text{हाय}} + 0.258 \cdot V_{\text{कैसे}} + 0.280 \cdot V_{\text{हो}} + 0.224 \cdot V_{\text{तुम}}
 \end{bmatrix}
 =
 \begin{bmatrix}
-0.10   & 0.50   & 0.20   & 0.40   \\[4pt]
-0.209  & 0.609  & 0.309  & 0.237  \\[4pt]
-0.2035 & 0.4958 & 0.3753 & 0.2627 \\[4pt]
+0.10   & 0.50   & 0.20   & 0.40   \\\\[4pt]
+0.209  & 0.609  & 0.309  & 0.237  \\\\[4pt]
+0.2035 & 0.4958 & 0.3753 & 0.2627 \\\\[4pt]
 0.2916 & 0.4732 & 0.3580 & 0.2498
 \end{bmatrix}
+$$
 
+**Interpretation by token:**
 
-- **Output “हाय”** = `[0.10, 0.50, 0.20, 0.40]`  
-- **Output “कैसे”** ≈ `[0.209, 0.609, 0.309, 0.237]`  
-- **Output “हो”**   ≈ `[0.2035, 0.4958, 0.3753, 0.2627]`  
-- **Output “तुम”**  ≈ `[0.2916, 0.4732, 0.3580, 0.2498]`
+- **Output “हाय”**  → `[0.10, 0.50, 0.20, 0.40]`  
+- **Output “कैसे”** → `≈ [0.209, 0.609, 0.309, 0.237]`  
+- **Output “हो”**   → `≈ [0.2035, 0.4958, 0.3753, 0.2627]`  
+- **Output “तुम”**  → `≈ [0.2916, 0.4732, 0.3580, 0.2498]`
 
 
 # 🔹 Understanding Cross‑Attention in Encoder–Decoder Attention
@@ -391,41 +409,54 @@ Below is a step‑by‑step worked example of **cross‑attention** between an E
   ["हाय", "कैसे", "हो", "तुम"]
   ```
 
-
 ## 2. Q, K, V Matrices
 
-- **Queries** come from the **decoder** hidden states (one per Hindi token).  
-  Q (from decoder) =
-  \begin{bmatrix}
-    0.1 & 0.2 & 0.3 & 0.4 \\ 
-    0.2 & 0.1 & 0.4 & 0.3 \\ 
-    0.3 & 0.4 & 0.2 & 0.1 \\ 
-    0.4 & 0.3 & 0.1 & 0.2
-  \end{bmatrix}
-  – Row 1 → हाय  
-  – Row 2 → कैसे  
-  – Row 3 → हो  
-  – Row 4 → तुम  
+- **Queries** come from the **decoder hidden states** (one per Hindi token):
 
-- **Keys** and **Values** come from the **encoder** outputs (one per English token).  
-  K (from encoder) =
-  \begin{bmatrix}
-    0.4 & 0.3 & 0.2 & 0.1 \\ 
-    0.5 & 0.3 & 0.6 & 0.1 \\ 
-    0.6 & 0.4 & 0.5 & 0.2 \\ 
-    0.1 & 0.2 & 0.3 & 0.5
-  \end{bmatrix},
-  V (from encoder) =
-  \begin{bmatrix}
-    0.1 & 0.5 & 0.2 & 0.4 \\ 
-    0.3 & 0.7 & 0.4 & 0.1 \\ 
-    0.2 & 0.3 & 0.5 & 0.3 \\ 
-    0.6 & 0.4 & 0.3 & 0.2
-  \end{bmatrix}
-  – Row 1 → “Hi”  
-  – Row 2 → “how”  
-  – Row 3 → “are”  
-  – Row 4 → “you”  
+$$
+Q =
+\begin{bmatrix}
+0.1 & 0.2 & 0.3 & 0.4 \\\\
+0.2 & 0.1 & 0.4 & 0.3 \\\\
+0.3 & 0.4 & 0.2 & 0.1 \\\\
+0.4 & 0.3 & 0.1 & 0.2
+\end{bmatrix}
+$$
+
+**Rows represent Hindi tokens:**
+
+- Row 1 → हाय  
+- Row 2 → कैसे  
+- Row 3 → हो  
+- Row 4 → तुम  
+
+- **Keys** and **Values** come from the **encoder outputs** (one per English token):
+
+$$
+K =
+\begin{bmatrix}
+0.4 & 0.3 & 0.2 & 0.1 \\\\
+0.5 & 0.3 & 0.6 & 0.1 \\\\
+0.6 & 0.4 & 0.5 & 0.2 \\\\
+0.1 & 0.2 & 0.3 & 0.5
+\end{bmatrix},
+\quad
+V =
+\begin{bmatrix}
+0.1 & 0.5 & 0.2 & 0.4 \\\\
+0.3 & 0.7 & 0.4 & 0.1 \\\\
+0.2 & 0.3 & 0.5 & 0.3 \\\\
+0.6 & 0.4 & 0.3 & 0.2
+\end{bmatrix}
+$$
+
+**Rows represent English tokens:**
+
+- Row 1 → “Hi”  
+- Row 2 → “how”  
+- Row 3 → “are”  
+- Row 4 → “you”
+
 
 
 ## 3. Raw Cross‑Attention Scores
@@ -435,18 +466,25 @@ $$
 S = \left( \frac{Q \cdot K^T}{\sqrt{d_k}} \right)
 $$
 
+The raw attention score matrix:
+
+$$
 S =
 \begin{bmatrix}
-0.20 & 0.33 & 0.37 & 0.34 \\  
-0.22 & 0.40 & 0.42 & 0.31 \\  
-0.29 & 0.40 & 0.46 & 0.22 \\  
+0.20 & 0.33 & 0.37 & 0.34 \\\\
+0.22 & 0.40 & 0.42 & 0.31 \\\\
+0.29 & 0.40 & 0.46 & 0.22 \\\\
 0.29 & 0.37 & 0.45 & 0.23
 \end{bmatrix}
+$$
 
-- Row 1 (“हाय”) scores: `[0.20, 0.33, 0.37, 0.34]`  
-- Row 2 (“कैसे”) scores: `[0.22, 0.40, 0.42, 0.31]`  
-- Row 3 (“हो”)   scores: `[0.29, 0.40, 0.46, 0.22]`  
-- Row 4 (“तुम”)  scores: `[0.29, 0.37, 0.45, 0.23]`  
+Token-wise attention scores:
+
+- Row 1 (“हाय”) → `[0.20, 0.33, 0.37, 0.34]`  
+- Row 2 (“कैसे”) → `[0.22, 0.40, 0.42, 0.31]`  
+- Row 3 (“हो”)   → `[0.29, 0.40, 0.46, 0.22]`  
+- Row 4 (“तुम”)  → `[0.29, 0.37, 0.45, 0.23]`
+
 
 
 Here's the corrected and properly formatted Markdown version of your content that works well with platforms supporting LaTeX math (like Jupyter Notebook or some Markdown parsers that use MathJax or KaTeX):
