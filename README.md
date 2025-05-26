@@ -360,23 +360,23 @@ $$
 
 ## 6. Final Output  
 We compute the **contextualized output vectors** by multiplying the attention weights **W** with the **Value matrix V**:
+
 $$
 O = W \times V =
 \begin{bmatrix}
-1 \cdot V_{\text{हाय}} \\\\[4pt]
-0.455 \cdot V_{\text{हाय}} + 0.545 \cdot V_{\text{कैसे}} \\\\[4pt]
-0.303 \cdot V_{\text{हाय}} + 0.338 \cdot V_{\text{कैसे}} + 0.359 \cdot V_{\text{हो}} \\\\[4pt]
+1 \cdot V_{\text{हाय}} \\
+0.455 \cdot V_{\text{हाय}} + 0.545 \cdot V_{\text{कैसे}} \\
+0.303 \cdot V_{\text{हाय}} + 0.338 \cdot V_{\text{कैसे}} + 0.359 \cdot V_{\text{हो}} \\
 0.238 \cdot V_{\text{हाय}} + 0.258 \cdot V_{\text{कैसे}} + 0.280 \cdot V_{\text{हो}} + 0.224 \cdot V_{\text{तुम}}
 \end{bmatrix}
 =
 \begin{bmatrix}
-0.10   & 0.50   & 0.20   & 0.40   \\\\[4pt]
-0.209  & 0.609  & 0.309  & 0.237  \\\\[4pt]
-0.2035 & 0.4958 & 0.3753 & 0.2627 \\\\[4pt]
+0.10   & 0.50   & 0.20   & 0.40   \\
+0.209  & 0.609  & 0.309  & 0.237  \\
+0.2035 & 0.4958 & 0.3753 & 0.2627 \\
 0.2916 & 0.4732 & 0.3580 & 0.2498
 \end{bmatrix}
 $$
-
 
 **Interpretation by token:**
 
