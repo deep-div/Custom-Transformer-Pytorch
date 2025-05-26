@@ -233,35 +233,45 @@ Token sequence (4 tokens):
 
 ## 2. Q, K, V Matrices
 
-We stack each token’s Q/K/V vectors into 4×4 matrices (rows = tokens, cols = d_model = 4): [in attention paper we have d_model 512]
+We stack each token’s Q/K/V vectors into 4×4 matrices (rows = tokens, cols = d_model = 4):  
+*(In the original Attention paper, we have d_model = 512)*
 
-Q = 
-\begin{bmatrix}
-0.1 & 0.2 & 0.3 & 0.4 \\
-0.2 & 0.1 & 0.4 & 0.3 \\
-0.3 & 0.4 & 0.2 & 0.1 \\
+### Q Matrix:
+$$
+Q = \begin{bmatrix}
+0.1 & 0.2 & 0.3 & 0.4 \\\\
+0.2 & 0.1 & 0.4 & 0.3 \\\\
+0.3 & 0.4 & 0.2 & 0.1 \\\\
 0.4 & 0.3 & 0.1 & 0.2
-\end{bmatrix},
+\end{bmatrix}
+$$
 
-K = 
-\begin{bmatrix}
-0.4 & 0.3 & 0.2 & 0.1 \\
-0.5 & 0.3 & 0.6 & 0.1 \\
-0.6 & 0.4 & 0.5 & 0.2 \\
+### K Matrix:
+$$
+K = \begin{bmatrix}
+0.4 & 0.3 & 0.2 & 0.1 \\\\
+0.5 & 0.3 & 0.6 & 0.1 \\\\
+0.6 & 0.4 & 0.5 & 0.2 \\\\
 0.1 & 0.2 & 0.3 & 0.5
 \end{bmatrix}
-V = 
-\begin{bmatrix}
-0.1 & 0.5 & 0.2 & 0.4 \\
-0.3 & 0.7 & 0.4 & 0.1 \\
-0.2 & 0.3 & 0.5 & 0.3 \\
+$$
+
+### V Matrix:
+$$
+V = \begin{bmatrix}
+0.1 & 0.5 & 0.2 & 0.4 \\\\
+0.3 & 0.7 & 0.4 & 0.1 \\\\
+0.2 & 0.3 & 0.5 & 0.3 \\\\
 0.6 & 0.4 & 0.3 & 0.2
 \end{bmatrix}
+$$
 
-1st row of Q,K,V → हाय  
-2nd row of Q,K,V → कैसे  
-3rd row of Q,K,V → हो  
-4th row of Q,K,V → तुम  
+**Token-wise mapping:**
+
+- 1st row of Q, K, V → **हाय**  
+- 2nd row of Q, K, V → **कैसे**  
+- 3rd row of Q, K, V → **हो**  
+- 4th row of Q, K, V → **तुम**
 
 
 
