@@ -360,9 +360,6 @@ $$
 
 ## 6. Final Output  
 We compute the **contextualized output vectors** by multiplying the attention weights **W** with the **Value matrix V**:
-
-### Output Matrix:
-
 $$
 O = W \times V =
 \begin{bmatrix}
@@ -379,6 +376,7 @@ O = W \times V =
 0.2916 & 0.4732 & 0.3580 & 0.2498
 \end{bmatrix}
 $$
+
 
 **Interpretation by token:**
 
